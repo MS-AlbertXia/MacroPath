@@ -1,5 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
+from PyQt5.QtGui import QPixmap
 from qfluentwidgets import (
     CardWidget, TitleLabel, SubtitleLabel, BodyLabel,
     PrimaryPushButton, ProgressRing, ScrollArea
@@ -23,7 +24,20 @@ class HomeWidget(QWidget):
         # 头像
         avatar = QLabel()
         avatar.setFixedSize(80, 80)
-        avatar.setStyleSheet('border-radius: 40px; background-color: #0078D7;')
+        
+        # 从配置管理器中读取头像路径
+        from app.utils.config_manager import config_manager
+        avatar_path = config_manager.get_avatar_path()
+        if avatar_path:
+            pixmap = QPixmap(avatar_path)
+            if not pixmap.isNull():
+                avatar.setPixmap(pixmap.scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                avatar.setStyleSheet('border-radius: 40px;')
+            else:
+                avatar.setStyleSheet('border-radius: 40px; background-color: #0078D7;')
+        else:
+            avatar.setStyleSheet('border-radius: 40px; background-color: #0078D7;')
+        
         welcome_layout.addWidget(avatar, 0, Qt.AlignTop)
         
         # 欢迎信息

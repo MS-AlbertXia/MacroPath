@@ -186,7 +186,7 @@ class AIAssistantWidget(QWidget):
                 background: transparent;
                 border: none;
                 padding: 0;
-                font-family: Microsoft YaHei, Arial, sans-serif;
+                font-family: MiSans, Microsoft YaHei, Arial, sans-serif;
                 font-size: 14px;
             }
         ''')
@@ -243,7 +243,7 @@ class AIAssistantWidget(QWidget):
                     background: transparent;
                     border: none;
                     padding: 0;
-                    font-family: Microsoft YaHei, Arial, sans-serif;
+                    font-family: MiSans, Microsoft YaHei, Arial, sans-serif;
                     font-size: 14px;
                 }
             ''')
@@ -254,7 +254,7 @@ class AIAssistantWidget(QWidget):
                     background: transparent;
                     border: none;
                     padding: 0;
-                    font-family: Microsoft YaHei, Arial, sans-serif;
+                    font-family: MiSans, Microsoft YaHei, Arial, sans-serif;
                     font-size: 14px;
                 }
             ''')

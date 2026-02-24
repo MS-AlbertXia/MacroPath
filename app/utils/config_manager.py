@@ -15,7 +15,8 @@ class ConfigManager:
             "email": "",
             "daily_goal": "2小时",
             "reminder_enabled": True,
-            "auto_save_enabled": True
+            "auto_save_enabled": True,
+            "avatar_path": ""
         }
         
         if os.path.exists(self.config_path):
@@ -90,6 +91,15 @@ class ConfigManager:
     def set_auto_save_enabled(self, enabled):
         """设置自动保存是否启用"""
         self.config["auto_save_enabled"] = enabled
+        return self.save_config()
+    
+    def get_avatar_path(self):
+        """获取头像路径"""
+        return self.config.get("avatar_path", "")
+    
+    def set_avatar_path(self, avatar_path):
+        """设置头像路径"""
+        self.config["avatar_path"] = avatar_path
         return self.save_config()
 
 # 创建全局配置管理器实例

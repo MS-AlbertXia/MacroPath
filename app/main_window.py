@@ -13,6 +13,7 @@ from app.widgets.settings_widget import SettingsWidget
 class MainWindow(FluentWindow):
     def __init__(self):
         super().__init__()
+        
         self.resize(1000, 700)
         self.setMinimumSize(800, 600)
         self.setWindowTitle('宏星慧学 - MacroSTAR Path')

@@ -1,5 +1,6 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFileDialog
+from PyQt5.QtGui import QPixmap
 from qfluentwidgets import (
     ScrollArea, CardWidget, TitleLabel, SubtitleLabel, BodyLabel,
     ComboBox, Slider, LineEdit, PrimaryPushButton, CheckBox,
@@ -154,6 +155,39 @@ class SettingsWidget(QWidget):
         account_title = SubtitleLabel('账户设置')
         account_layout.addWidget(account_title)
         
+        # 头像设置
+        avatar_layout = QHBoxLayout()
+        avatar_layout.setSpacing(20)
+        
+        avatar_label = BodyLabel('头像:')
+        avatar_label.setFixedWidth(80)
+        
+        # 头像显示
+        self.avatar_display = QLabel()
+        self.avatar_display.setFixedSize(80, 80)
+        self.avatar_display.setStyleSheet('border-radius: 40px; background-color: #E0E0E0;')
+        
+        # 从配置管理器中读取头像路径
+        from app.utils.config_manager import config_manager
+        avatar_path = config_manager.get_avatar_path()
+        if avatar_path:
+            pixmap = QPixmap(avatar_path)
+            if not pixmap.isNull():
+                self.avatar_display.setPixmap(pixmap.scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                self.avatar_display.setStyleSheet('border-radius: 40px;')
+        
+        # 选择头像按钮
+        avatar_button = PrimaryPushButton('选择头像')
+        avatar_button.setFixedWidth(100)
+        avatar_button.clicked.connect(self.select_avatar)
+        
+        avatar_layout.addWidget(avatar_label)
+        avatar_layout.addWidget(self.avatar_display)
+        avatar_layout.addWidget(avatar_button)
+        avatar_layout.addStretch()
+        
+        account_layout.addLayout(avatar_layout)
+        
         # 用户名
         username_layout = QHBoxLayout()
         username_layout.setSpacing(20)
@@ -163,7 +197,6 @@ class SettingsWidget(QWidget):
         
         self.username_edit = LineEdit()
         # 从配置管理器中读取用户名
-        from app.utils.config_manager import config_manager
         self.username_edit.setText(config_manager.get_username())
         self.username_edit.setFixedWidth(200)
         
@@ -365,6 +398,52 @@ class SettingsWidget(QWidget):
             duration=5000,
             parent=self
         )
+    
+    def select_avatar(self):
+        """选择头像"""
+        # 打开文件对话框
+        file_dialog = QFileDialog()
+        file_dialog.setWindowTitle('选择头像')
+        file_dialog.setAcceptMode(QFileDialog.AcceptOpen)
+        file_dialog.setFileMode(QFileDialog.ExistingFile)
+        file_dialog.setNameFilters(['图片文件 (*.png *.jpg *.jpeg *.bmp *.gif)', '所有文件 (*)'])
+        
+        if file_dialog.exec_() == QFileDialog.Accepted:
+            # 获取选择的文件路径
+            avatar_path = file_dialog.selectedFiles()[0]
+            
+            # 验证文件是否是有效的图片
+            pixmap = QPixmap(avatar_path)
+            if pixmap.isNull():
+                InfoBar.error(
+                    title='错误',
+                    content='选择的文件不是有效的图片',
+                    orient=Qt.Horizontal,
+                    isClosable=True,
+                    position=InfoBarPosition.TOP,
+                    duration=3000,
+                    parent=self
+                )
+                return
+            
+            # 更新头像显示
+            self.avatar_display.setPixmap(pixmap.scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            self.avatar_display.setStyleSheet('border-radius: 40px;')
+            
+            # 保存头像路径到配置管理器
+            from app.utils.config_manager import config_manager
+            config_manager.set_avatar_path(avatar_path)
+            
+            # 显示成功信息
+            InfoBar.success(
+                title='成功',
+                content='头像设置成功',
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.TOP,
+                duration=3000,
+                parent=self
+            )
     
     def save_openai_settings(self):
         """保存AI API设置"""
