@@ -8,7 +8,7 @@
 ![](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat&logo=Python&logoColor=ffffff) ![](https://img.shields.io/github/stars/MacroSTAR-MS/MacroSTAR_Path) ![](https://img.shields.io/github/release/MacroSTAR-MS/MacroSTAR_Path) ![](https://img.shields.io/github/issues/MacroSTAR-Studio/MacroSTAR_Path?color=F48D73) ![](https://img.shields.io/github/license/MacroSTAR-MS/MacroSTAR_Path.svg)
 </div>
 
->[!]Tip
+>[!Tip]
 >
 >宏星智途 from Vibe Coding。
 >
