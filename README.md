@@ -1,7 +1,7 @@
 <div align="center">
     <img src='./assets/logo.png' alt='logo' width='200' height='200'/>
-    <h1>宏星智途 | MacroSTAR Path</h1>
-    <p>宏星智途，你的下一个AI学习方案</p>
+    <h1>宏星智途 | MacroPath</h1>
+    <p>以星为引，以智为途</p>
 
 ![](https://api.moedog.org/count/@CN-MacroSTAR-Path.readme)
 
