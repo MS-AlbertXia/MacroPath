@@ -19,13 +19,14 @@ class LearningPathWidget(QWidget):
         scroll_area.setWidgetResizable(True)
         scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scroll_area.setStyleSheet('background: transparent;')
+        scroll_area.setStyleSheet('background: transparent; border: none;')
         
-        # 滚动内容
+        # 滚动内容 widget
         scroll_content = QWidget()
         layout = QVBoxLayout(scroll_content)
         layout.setSpacing(20)
         layout.setContentsMargins(30, 30, 30, 30)
+        scroll_content.setStyleSheet('background: transparent; border: none;')
         
         # 标题
         title = TitleLabel('学习路径')

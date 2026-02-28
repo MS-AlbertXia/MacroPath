@@ -1,0 +1,9 @@
+./.pyc
+./.pyc
+app/widgets/__pycache__/ai_assistant_widget.cpython-313.pyc
+app/widgets/__pycache__/home_widget.cpython-313.pyc
+app/utils/__pycache__/openai_client.cpython-313.pyc
+app/utils/__pycache__/config_manager.cpython-313.pyc
+app/widgets/__pycache__/learning_path_widget.cpython-313.pyc
+app/widgets/__pycache__/progress_widget.cpython-313.pyc
+app/widgets/__pycache__/settings_widget.cpython-313.pyc

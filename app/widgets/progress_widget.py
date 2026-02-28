@@ -1,8 +1,8 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTableWidgetItem
 from qfluentwidgets import (
-    CardWidget, TitleLabel, SubtitleLabel, BodyLabel,
-    ProgressRing, PrimaryPushButton, ProgressBar, TableWidget
+    CardWidget, TitleLabel, SubtitleLabel, BodyLabel, ScrollArea, 
+    ProgressBar, PrimaryPushButton, ProgressRing, TableWidget
 )
 class ProgressWidget(QWidget):
     def __init__(self, parent=None):
@@ -10,18 +10,32 @@ class ProgressWidget(QWidget):
         self.setObjectName('progressWidget')
         
         # 主布局
-        layout = QVBoxLayout(self)
-        layout.setSpacing(20)
-        layout.setContentsMargins(30, 30, 30, 30)
+        main_layout = QVBoxLayout(self)
+        main_layout.setSpacing(0)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+
+        # 创建滚动区域
+        scroll_area = ScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setStyleSheet('background: transparent; border: none;')
+        
+        # 滚动内容 widget
+        scroll_content = QWidget()
+        scroll_layout = QVBoxLayout(scroll_content)
+        scroll_layout.setSpacing(20)
+        scroll_layout.setContentsMargins(30, 30, 30, 30)
+        scroll_content.setStyleSheet('background: transparent; border: none;')
         
         # 标题
         title = TitleLabel('学习进度')
         subtitle = BodyLabel('查看你的学习数据和进步情况。')
-        layout.addWidget(title)
-        layout.addWidget(subtitle)
+        scroll_layout.addWidget(title)
+        scroll_layout.addWidget(subtitle)
         
         # 学习统计
-        stats_card = CardWidget(self)
+        stats_card = CardWidget(scroll_content)
         stats_layout = QVBoxLayout(stats_card)
         stats_layout.setContentsMargins(20, 20, 20, 20)
         
@@ -49,10 +63,10 @@ class ProgressWidget(QWidget):
         stats_grid.addWidget(accuracy_stats)
         
         stats_layout.addLayout(stats_grid)
-        layout.addWidget(stats_card)
+        scroll_layout.addWidget(stats_card)
         
         # 学科进度
-        subjects_card = CardWidget(self)
+        subjects_card = CardWidget(scroll_content)
         subjects_layout = QVBoxLayout(subjects_card)
         subjects_layout.setContentsMargins(20, 20, 20, 20)
         
@@ -72,10 +86,10 @@ class ProgressWidget(QWidget):
             subject_widget = self.create_subject_item(subject['name'], subject['progress'])
             subjects_layout.addWidget(subject_widget)
         
-        layout.addWidget(subjects_card)
+        scroll_layout.addWidget(subjects_card)
         
         # 最近学习记录
-        history_card = CardWidget(self)
+        history_card = CardWidget(scroll_content)
         history_layout = QVBoxLayout(history_card)
         history_layout.setContentsMargins(20, 20, 20, 20)
         
@@ -105,11 +119,34 @@ class ProgressWidget(QWidget):
         self.history_table.setFixedHeight(200)
         history_layout.addWidget(self.history_table)
         
-        layout.addWidget(history_card)
+        scroll_layout.addWidget(history_card)
         
         # 底部空间
-        layout.addStretch()
+        scroll_layout.addStretch()
+
+        # 设置滚动区域内容
+        scroll_area.setWidget(scroll_content)
+        main_layout.addWidget(scroll_area)
     
+    def create_step_item(self, step_number, title, description, progress):
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        layout.setSpacing(10)
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        num_label = TitleLabel(str(step_number))
+        title_label = SubtitleLabel(title)
+        desc_label = BodyLabel(description)
+        bar = ProgressBar()
+        bar.setValue(progress)
+        
+        layout.addWidget(num_label)
+        layout.addWidget(title_label)
+        layout.addWidget(desc_label)
+        layout.addWidget(bar)
+        
+        return widget
+
     def create_stats_item(self, title, value, progress):
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -152,5 +189,3 @@ class ProgressWidget(QWidget):
         layout.addWidget(progress_label)
         
         return widget
-
-from PyQt5.QtWidgets import QProgressBar

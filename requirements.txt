@@ -1,3 +1,5 @@
 PyQt5==5.15.10
-PyQtFluentWidgets==1.11.1
+PyQt-Fluent-Widgets==1.11.1
 requests==2.31.0
+markdown==3.10.2
+openai==2.24.0
