@@ -6,6 +6,7 @@ from qfluentwidgets import (
     ComboBox, Slider, LineEdit, PrimaryPushButton, CheckBox,
     setTheme, Theme, InfoBar, InfoBarPosition
 )
+import threading
 
 class SettingsWidget(QWidget):
     def __init__(self, parent=None):
@@ -146,13 +147,13 @@ class SettingsWidget(QWidget):
         learning_layout.addLayout(auto_save_layout)
         layout.addWidget(learning_card)
         
-        # 账户设置
+        # 账户与登录
         account_card = CardWidget(scroll_content)
         account_layout = QVBoxLayout(account_card)
         account_layout.setContentsMargins(20, 20, 20, 20)
         account_layout.setSpacing(15)
         
-        account_title = SubtitleLabel('账户设置')
+        account_title = SubtitleLabel('账户与登录')
         account_layout.addWidget(account_title)
         
         # 头像设置
@@ -222,6 +223,59 @@ class SettingsWidget(QWidget):
         email_layout.addStretch()
         
         account_layout.addLayout(email_layout)
+
+        # 登录配置
+        from app.utils.config_manager import config_manager
+        
+        oidc_group_label = BodyLabel('登录配置 (OIDC)')
+        oidc_group_label.setStyleSheet('font-weight: bold; margin-top: 10px;')
+        account_layout.addWidget(oidc_group_label)
+
+        issuer_layout = QHBoxLayout()
+        issuer_label = BodyLabel('身份提供者:')
+        issuer_label.setFixedWidth(100)
+        self.issuer_edit = LineEdit()
+        self.issuer_edit.setText(config_manager.get_oidc_issuer_url())
+        issuer_layout.addWidget(issuer_label)
+        issuer_layout.addWidget(self.issuer_edit, 1)
+        account_layout.addLayout(issuer_layout)
+
+        client_layout = QHBoxLayout()
+        client_label = BodyLabel('客户端ID:')
+        client_label.setFixedWidth(100)
+        self.client_id_edit = LineEdit()
+        self.client_id_edit.setText(config_manager.get_oidc_client_id())
+        client_layout.addWidget(client_label)
+        client_layout.addWidget(self.client_id_edit, 1)
+        account_layout.addLayout(client_layout)
+
+        port_layout = QHBoxLayout()
+        port_label = BodyLabel('回调端口:')
+        port_label.setFixedWidth(100)
+        self.redirect_port_edit = LineEdit()
+        self.redirect_port_edit.setText(str(config_manager.get_oidc_redirect_port()))
+        port_layout.addWidget(port_label)
+        port_layout.addWidget(self.redirect_port_edit, 1)
+        account_layout.addLayout(port_layout)
+
+        # 登录状态与操作
+        status_layout = QHBoxLayout()
+        status_layout.setSpacing(20)
+        self.login_status_label = BodyLabel('登录状态：未登录')
+        status_layout.addWidget(self.login_status_label)
+        
+        self.login_button = PrimaryPushButton('登录')
+        self.login_button.setFixedWidth(100)
+        self.login_button.clicked.connect(self.start_login)
+        
+        self.logout_button = PrimaryPushButton('退出登录')
+        self.logout_button.setFixedWidth(100)
+        self.logout_button.clicked.connect(self.start_logout)
+        
+        status_layout.addWidget(self.login_button)
+        status_layout.addWidget(self.logout_button)
+        status_layout.addStretch()
+        account_layout.addLayout(status_layout)
         
         # 保存按钮
         save_button = PrimaryPushButton('保存设置')
@@ -350,6 +404,10 @@ class SettingsWidget(QWidget):
         # 设置滚动区域内容
         scroll_area.setWidget(scroll_content)
         main_layout.addWidget(scroll_area)
+        try:
+            self.update_login_status()
+        except Exception:
+            pass
     
     def on_theme_changed(self, index):
         if index == 0:
@@ -358,6 +416,67 @@ class SettingsWidget(QWidget):
             setTheme(Theme.DARK)
         else:
             setTheme(Theme.AUTO)
+    
+    def start_login(self):
+        from app.utils.config_manager import config_manager
+        from app.utils.auth_manager import auth_manager
+        issuer = self.issuer_edit.text().strip()
+        client_id = self.client_id_edit.text().strip()
+        port_text = self.redirect_port_edit.text().strip()
+        if not client_id:
+            InfoBar.error(title='错误', content='请填写客户端ID', orient=Qt.Horizontal, isClosable=True, position=InfoBarPosition.TOP, duration=3000, parent=self)
+            return
+        try:
+            port = int(port_text)
+        except Exception:
+            InfoBar.error(title='错误', content='回调端口无效', orient=Qt.Horizontal, isClosable=True, position=InfoBarPosition.TOP, duration=3000, parent=self)
+            return
+        config_manager.set_oidc_issuer_url(issuer)
+        config_manager.set_oidc_client_id(client_id)
+        config_manager.set_oidc_redirect_port(port)
+        def run_login():
+            try:
+                auth_manager.load_oidc_config()
+                auth_manager.login()
+                InfoBar.success(title='成功', content='登录成功', orient=Qt.Horizontal, isClosable=True, position=InfoBarPosition.TOP, duration=3000, parent=self)
+                self.update_login_status()
+            except Exception as e:
+                InfoBar.error(title='错误', content=str(e), orient=Qt.Horizontal, isClosable=True, position=InfoBarPosition.TOP, duration=5000, parent=self)
+        threading.Thread(target=run_login, daemon=True).start()
+
+    def start_logout(self):
+        from app.utils.auth_manager import auth_manager
+        auth_manager.logout()
+        InfoBar.success(title='成功', content='已退出登录', orient=Qt.Horizontal, isClosable=True, position=InfoBarPosition.TOP, duration=3000, parent=self)
+        self.update_login_status()
+    
+    def update_login_status(self):
+        try:
+            from app.utils.auth_manager import auth_manager
+            from app.utils.config_manager import config_manager
+            if auth_manager.is_authenticated():
+                name = config_manager.config.get("user_name") or config_manager.get_username()
+                email = config_manager.config.get("user_email") or ''
+                self.login_status_label.setText(f'登录状态：已登录（{name} / {email}）')
+                self.login_button.setEnabled(True)
+                self.logout_button.setEnabled(True)
+                try:
+                    if name:
+                        self.username_edit.setText(name)
+                    if email:
+                        self.email_edit.setText(email)
+                    pic = config_manager.config.get("user_picture")
+                    if pic and pic.startswith("http"):
+                        # 尝试设置网络头像（可选）
+                        pass
+                except Exception:
+                    pass
+            else:
+                self.login_status_label.setText('登录状态：未登录')
+                self.login_button.setEnabled(True)
+                self.logout_button.setEnabled(True)
+        except Exception:
+            pass
     
     def save_settings(self):
         """保存账户设置"""

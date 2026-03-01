@@ -4,5 +4,9 @@
   "daily_goal": "2小时",
   "reminder_enabled": true,
   "auto_save_enabled": true,
-  "avatar_path": "H:/$Com-AI_Edu-4.1/assets/logo.png"
+  "avatar_path": "H:/$Com-AI_Edu-4.1/assets/logo.png",
+  "oidc_issuer_url": "https://account.ae-3803.com",
+  "oidc_client_id": "",
+  "oidc_redirect_port": 8765,
+  "oidc_scopes": "openid profile email offline_access"
 }

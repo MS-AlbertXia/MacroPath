@@ -16,7 +16,11 @@ class ConfigManager:
             "daily_goal": "2小时",
             "reminder_enabled": True,
             "auto_save_enabled": True,
-            "avatar_path": ""
+            "avatar_path": "",
+            "oidc_issuer_url": "https://account.ae-3803.com",
+            "oidc_client_id": "",
+            "oidc_redirect_port": 8765,
+            "oidc_scopes": "openid profile email offline_access"
         }
         
         if os.path.exists(self.config_path):
@@ -100,6 +104,34 @@ class ConfigManager:
     def set_avatar_path(self, avatar_path):
         """设置头像路径"""
         self.config["avatar_path"] = avatar_path
+        return self.save_config()
+
+    def get_oidc_issuer_url(self):
+        return self.config.get("oidc_issuer_url", "https://account.ae-3803.com")
+
+    def set_oidc_issuer_url(self, url):
+        self.config["oidc_issuer_url"] = url
+        return self.save_config()
+
+    def get_oidc_client_id(self):
+        return self.config.get("oidc_client_id", "")
+
+    def set_oidc_client_id(self, client_id):
+        self.config["oidc_client_id"] = client_id
+        return self.save_config()
+
+    def get_oidc_redirect_port(self):
+        return int(self.config.get("oidc_redirect_port", 8765))
+
+    def set_oidc_redirect_port(self, port):
+        self.config["oidc_redirect_port"] = int(port)
+        return self.save_config()
+
+    def get_oidc_scopes(self):
+        return self.config.get("oidc_scopes", "openid profile email offline_access")
+
+    def set_oidc_scopes(self, scopes):
+        self.config["oidc_scopes"] = scopes
         return self.save_config()
 
 # 创建全局配置管理器实例

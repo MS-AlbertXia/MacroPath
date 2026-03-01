@@ -47,11 +47,11 @@ class HomeWidget(QWidget):
         # 从配置管理器中读取用户名
         from app.utils.config_manager import config_manager
         username = config_manager.get_username()
-        welcome_title = TitleLabel(f'欢迎回来！{username}')
+        self.welcome_title = TitleLabel(f'欢迎回来！{username}')
         welcome_subtitle = SubtitleLabel('今天的学习计划准备好了吗？')
         welcome_body = BodyLabel('让我们一起开始今天的学习之旅吧！')
         
-        info_layout.addWidget(welcome_title)
+        info_layout.addWidget(self.welcome_title)
         info_layout.addWidget(welcome_subtitle)
         info_layout.addWidget(welcome_body)
         
@@ -113,6 +113,15 @@ class HomeWidget(QWidget):
         
         # 底部空间
         layout.addStretch()
+    
+    def showEvent(self, event):
+        try:
+            from app.utils.config_manager import config_manager
+            username = config_manager.get_username()
+            self.welcome_title.setText(f'欢迎回来！{username}')
+        except Exception:
+            pass
+        super().showEvent(event)
     
     def create_stat_item(self, title, value, progress):
         widget = QWidget()
